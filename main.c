@@ -1,17 +1,21 @@
 #include <stdio.h>
-#include "mate_aplicada.h" // Incluimos nuestro header personal (con comillas "")
+#include <math.h>
+#include "errores/metricas.h" // Observa cómo llamamos al subdirectorio
 
 int main() {
+    double v_real = M_PI; // Constante pi de math.h (aprox 3.14159265...)
+    double v_aprox = 3.14;
+    
     printf("====================================================\n");
-    printf("   LIBRERIA DE MATEMATICA APLICADA 3 - UNIDAD 1\n");
+    printf("   PRUEBA DE MODULO DE ERRORES\n");
     printf("====================================================\n\n");
     
-    // Verificamos el primer intervalo del ejercicio 1a
-    teorema_valor_intermedio(0.2, 0.3) ? printf("  [✓] EXITO: El TVI garantiza al menos una raiz.\n\n") : printf("  [x] FALLO: El TVI no concluye nada.\n\n");
+    printf("Valor Real (V_R)       : %.8f\n", v_real);
+    printf("Valor Aproximado (V_A) : %.8f\n\n", v_aprox);
     
-    // Verificamos el segundo intervalo del ejercicio 1a
-    teorema_valor_intermedio(1.2, 1.3) ? printf("  [✓] EXITO: El TVI garantiza al menos una raiz.\n\n") : printf("  [x] FALLO: El TVI no concluye nada.\n\n");
-    
+    printf("Error Absoluto         : %.8f\n", error_absoluto(v_real, v_aprox));
+    printf("Error Relativo         : %.8f\n", error_relativo(v_real, v_aprox));
+    printf("Error Porcentual       : %.4f %%\n", error_porcentual(v_real, v_aprox));
     
     return 0;
 }
