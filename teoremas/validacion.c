@@ -1,13 +1,11 @@
-#ifndef METRICAS_H
-#define METRICAS_H
+#include <stdio.h>
+#include <math.h>
+#include "validacion.h"
+#include "../core/aritmetica.h"
 
-// Calcula el error absoluto: magnitud de la diferencia exacta
-double error_absoluto(double valor_real, double valor_aproximado);
+/*
+DATA TYPE   NAME                        ARGUMENTS               FUNCTION
+*/
+double      f                           (double x)              { return x*cos(x)-2*x*x+3*x-1; }
+bool        teorema_valor_intermedio    (double a, double b)    { return redondear(f(a),6) * redondear(f(b),6) < 0; }
 
-// Calcula el error relativo: proporción del error respecto al valor real
-double error_relativo(double valor_real, double valor_aproximado);
-
-// Calcula el error relativo porcentual
-double error_porcentual(double valor_real, double valor_aproximado);
-
-#endif

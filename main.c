@@ -1,29 +1,17 @@
 #include <stdio.h>
-#include "core/aritmetica.h"
-#include "errores/metricas.h"
+#include "teoremas/validacion.h" // Incluimos nuestro header personal (con comillas "")
 
 int main() {
-    double valor_crudo = 3.1415926535;
-    
     printf("====================================================\n");
-    printf("   PRUEBA DEL MODULO CORE (ARITMETICA DE MAQUINA)\n");
+    printf("   LIBRERIA DE MATEMATICA APLICADA 3 - UNIDAD 1\n");
     printf("====================================================\n\n");
     
-    printf("Valor Original: %.10f\n\n", valor_crudo);
+    // Verificamos el primer intervalo del ejercicio 1a
+    teorema_valor_intermedio(0.2, 0.3) ? printf("  [✓] EXITO: El TVI garantiza al menos una raiz.\n\n") : printf("  [x] FALLO: El TVI no concluye nada.\n\n");
     
-    // Prototipos dinámicos de redondeo y truncamiento
-    printf("Redondeo Manual a 2 decimales : %.10f\n", redondear(valor_crudo, 2));
-    printf("Redondeo Manual a 6 decimales : %.10f\n", redondear(valor_crudo, 6));
-    printf("Truncado Manual a 4 decimales : %.10f\n\n", truncar(valor_crudo, 4));
+    // Verificamos el segundo intervalo del ejercicio 1a
+    teorema_valor_intermedio(1.2, 1.3) ? printf("  [✓] EXITO: El TVI garantiza al menos una raiz.\n\n") : printf("  [x] FALLO: El TVI no concluye nada.\n\n");
     
-    // Prueba de Tolerancia ISO
-    double limite_superior = 12.005;
-    double limite_inferior = 11.995;
-    double tol = tolerancia(limite_superior, limite_inferior);
-    
-    printf("Especificaciones de Tolerancia ISO:\n");
-    printf("  L_max: %.3f | L_min: %.3f\n", limite_superior, limite_inferior);
-    printf("  Rango de Tolerancia (T): %.2f\n", tol);
     
     return 0;
 }
