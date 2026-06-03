@@ -1,21 +1,29 @@
 #include <stdio.h>
-#include <math.h>
-#include "errores/metricas.h" // Observa cómo llamamos al subdirectorio
+#include "core/aritmetica.h"
+#include "errores/metricas.h"
 
 int main() {
-    double v_real = M_PI; // Constante pi de math.h (aprox 3.14159265...)
-    double v_aprox = 3.14;
+    double valor_crudo = 3.1415926535;
     
     printf("====================================================\n");
-    printf("   PRUEBA DE MODULO DE ERRORES\n");
+    printf("   PRUEBA DEL MODULO CORE (ARITMETICA DE MAQUINA)\n");
     printf("====================================================\n\n");
     
-    printf("Valor Real (V_R)       : %.8f\n", v_real);
-    printf("Valor Aproximado (V_A) : %.8f\n\n", v_aprox);
+    printf("Valor Original: %.10f\n\n", valor_crudo);
     
-    printf("Error Absoluto         : %.8f\n", error_absoluto(v_real, v_aprox));
-    printf("Error Relativo         : %.8f\n", error_relativo(v_real, v_aprox));
-    printf("Error Porcentual       : %.4f %%\n", error_porcentual(v_real, v_aprox));
+    // Prototipos dinámicos de redondeo y truncamiento
+    printf("Redondeo Manual a 2 decimales : %.10f\n", redondear(valor_crudo, 2));
+    printf("Redondeo Manual a 6 decimales : %.10f\n", redondear(valor_crudo, 6));
+    printf("Truncado Manual a 4 decimales : %.10f\n\n", truncar(valor_crudo, 4));
+    
+    // Prueba de Tolerancia ISO
+    double limite_superior = 12.005;
+    double limite_inferior = 11.995;
+    double tol = tolerancia(limite_superior, limite_inferior);
+    
+    printf("Especificaciones de Tolerancia ISO:\n");
+    printf("  L_max: %.3f | L_min: %.3f\n", limite_superior, limite_inferior);
+    printf("  Rango de Tolerancia (T): %.2f\n", tol);
     
     return 0;
 }
