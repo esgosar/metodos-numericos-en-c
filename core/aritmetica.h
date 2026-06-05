@@ -8,13 +8,13 @@ OUTPUT REGISTER | FUNCTION POINTER | INPUT ARGUMENTS (STACK ALLOCATION) | MATH D
 (64-bit IEEE754)| (Code Address)   | (Type)  (Identifier)               | (Set Theory)
 ========================================================================================== */
 
-double               redondear_manual   (double   numero,                    // x ∈ ℝ, d ∈ ℤ
+double               redondear          (double   numero,                    // x ∈ ℝ, d ∈ ℤ
                                          int      decimales);
 
-double               truncar_manual     (double   numero,                    // x ∈ ℝ, d ∈ ℤ
+double               truncar            (double   numero,                    // x ∈ ℝ, d ∈ ℤ
                                          int      decimales);
 
-double               calcular_tolerancia(double   l_max,                     // Lmax, Lmin ∈ ℝ
+double               tolerancia         (double   l_max,                     // Lmax, Lmin ∈ ℝ
                                          double   l_min);
 
 /* ========================================================================================== */
