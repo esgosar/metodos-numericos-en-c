@@ -5,7 +5,12 @@
 
 /*
 DATA TYPE   NAME        ARGUMENTS                                                                                           */
-double      biseccion   (double (*f)(double), double a, double b, double tolerancia, int max_iter, int decimales)
+double      biseccion   (double (*f)(double),
+                        double  a,
+                        double  b,
+                        double  tolerancia,
+                        int     max_iter,
+                        int     decimales)
 {
 // Paso 1: Validar signos opuestos mediante el Teorema del Valor Intermedio
     double fa = redondear(f(a), decimales);
@@ -24,10 +29,10 @@ double      biseccion   (double (*f)(double), double a, double b, double toleran
     double p, fp, error;
     
     for (int n = 1; n <= max_iter; n++) {
-        p = redondear((a + b) / 2.0, decimales); // Paso 2: Aproximación [cite: 3, 5]
-        fp = redondear(f(p), decimales);
-        fa = redondear(f(a), decimales);
-        fb = redondear(f(b), decimales);
+        p   = redondear((a + b) / 2.0, decimales); // Paso 2: Aproximación [cite: 3, 5]
+        fp  = redondear(f(p), decimales);
+        fa  = redondear(f(a), decimales);
+        fb  = redondear(f(b), decimales);
         double prod = redondear(fa * fp, decimales);
         
         error = redondear((b - a) / 2.0, decimales); // Paso 4: Error del método [cite: 8]
