@@ -2,12 +2,11 @@
 #define METRICAS_H
 
 /* ==========================================================================================
- * MODULO: METRICAS DE ERROR Y ANALISIS DE PRECISION CONTINUA
- * ==========================================================================================
- * OUTPUT REGISTER | FUNCTION POINTER | INPUT ARGUMENTS (STACK ALLOCATION) | MATH DOMAIN
- * (64-bit IEEE754)| (Code Address)   | (Type)  (Identifier)               | (Set Theory)
- * ==========================================================================================
- */
+MODULO: METRICAS DE ERROR Y ANALISIS DE PRECISION CONTINUA
+==========================================================================================
+OUTPUT REGISTER | FUNCTION POINTER | INPUT ARGUMENTS (STACK ALLOCATION) | MATH DOMAIN
+(64-bit IEEE754)| (Code Address)   | (Type)  (Identifier)               | (Set Theory)
+========================================================================================== */
 
 double               error_absoluto     (double   valor_real,                // Vr, Va ∈ ℝ
                                          double   valor_aproximado);
