@@ -8,7 +8,7 @@ El diseño cumple con las directrices algorítmicas e impresión de matrices esp
 
 ## 🛠️ Arquitectura y Estructura del Proyecto
 
-El código está completamente segmentado aislando los resolvedores algorítmicos de la lógica matemática de la CPU, las métricas de precisión y el bus de control de I/O.
+El código está completamente segmentado aislando los resolvedores algorítmicos de la lógica matemática, las métricas de precisión y el bus de control de I/O.
 
 ```text
 ├── core/
