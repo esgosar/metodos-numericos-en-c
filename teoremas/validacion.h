@@ -10,11 +10,9 @@ OUTPUT REGISTER   | FUNCTION POINTER             | INPUT ARGUMENTS (STACK ALLOCA
 (Hardware Type)   | (Code Address)               | (Type)        (Identifier)        | (Set Theory)
 ========================================================================================== */
 
-double                 f                            (double         x);                 // x ∈ ℝ
-
-bool                   teorema_valor_intermedio     (double         a,                  // a ∈ ℝ
+bool                   teorema_valor_intermedio     (double         (*f)(double),       // f: ℝ → ℝ
+                                                     double         a,                  // a ∈ ℝ
                                                      double         b);                 // b ∈ ℝ | a < b
-
 /* ========================================================================================== */
 
 #endif

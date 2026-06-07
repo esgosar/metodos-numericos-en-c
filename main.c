@@ -3,57 +3,71 @@
 #include "core/aritmetica.h"
 #include "teoremas/validacion.h"
 #include "metodos/solvers.h"
-#include "errores/metricas.h"
 
-// Derivada exacta de f(x) para Newton-Raphson: f'(x) = cos(x) - x*sin(x) - 4x + 3
-double df_proyecto(double x) { 
+/* ==========================================================================================
+ * ESPACIO DE USUARIO (USER SPACE): DEFINICIÓN DE SEÑALES FÍSICAS O ECUACIONES
+ * ========================================================================================== */
+
+// 1. Función principal f(x): La que antes estaba "quemada" adentro del motor
+double         ecuacion_f           (double x) { 
+    return (x * cos(x)) - (2.0 * x * x) + (3.0 * x) - 1.0; 
+}
+
+// 2. Derivada analítica f'(x): Requerida por la FPU para Newton-Raphson
+double         ecuacion_df          (double x) { 
     return cos(x) - (x * sin(x)) - (4.0 * x) + 3.0; 
 }
 
-// Despeje g(x) para Punto Fijo desde f(x) = 0: x = (x*cos(x) - 2x^2 - 1) / -3
-double g_proyecto(double x) { 
+// 3. Función iteradora g(x): Despeje de x para Punto Fijo
+double         ecuacion_g           (double x) { 
     return ((x * cos(x)) - (2.0 * x * x) - 1.0) / -3.0; 
 }
 
+/* ==========================================================================================
+ * BANCO DE PRUEBAS DEL SISTEMA (MAIN ENTRY POINT)
+ * ========================================================================================== */
+
 int main() {
     printf("=================================================================================\n");
-    printf("   ARCHITECTURE TEST: ADVANCED COMPUTER NUMERICAL ENGINE\n");
+    printf("   ARCHITECTURE TEST: NUMERICAL COMPUTATION ENGINE\n");
     printf("=================================================================================\n\n");
 
-    // Configuración de la ALU de control
-    double tol = tolerancia(0.0001, 0.0000); // Tol = 0.0001
-    int bits_precision = 6;                  // Forzar visualización matricial a 6 decimales
-    int ciclos_cpu = 15;                     // Límite de iteraciones antes de la interrupción
+    /* --- PARAMETROS DE CONFIGURACIÓN DEL HARDWARE --- */
+    double         tol                = tolerancia(0.0001, 0.0); // Tolerancia estricta
+    int            bits_precision     = 6;                       // Renderizado dinámico a 6 decimales
+    int            ciclos_cpu         = 15;                      // Timeout (max iteraciones)
 
-    printf("[FPU STATUS]: Tolerancia cargada: %.6f | Precision FPU: %d decimales\n\n", tol, bits_precision);
+    printf("[FPU CONFIG]: Tolerancia: %.6f | Precision FPU: %d decimales | Ciclos Max: %d\n\n", 
+           tol, bits_precision, ciclos_cpu);
 
     // ---------------------------------------------------------------------------------
-    // TEST 1: EJECUCIÓN DEL SOLVER DE BISECCIÓN
+    // TEST 1: METODO DE BISECCION (Inyectando el puntero 'ecuacion_f')
     // ---------------------------------------------------------------------------------
     printf(">> DISPARANDO SUBPROCESO: BISECCION [Intervalo: a = 0.0, b = 1.0]\n");
-    biseccion(f, 0.0, 1.0, tol, ciclos_cpu, bits_precision);
+    biseccion(ecuacion_f, 0.0, 1.0, tol, ciclos_cpu, bits_precision);
     printf("\n---------------------------------------------------------------------------------\n");
 
     // ---------------------------------------------------------------------------------
-    // TEST 2: EJECUCIÓN DEL SOLVER DE NEWTON-RAPHSON
+    // TEST 2: METODO DE NEWTON-RAPHSON (Inyectando 'ecuacion_f' y 'ecuacion_df')
     // ---------------------------------------------------------------------------------
     printf(">> DISPARANDO SUBPROCESO: NEWTON-RAPHSON [Punto Inicial x0 = 0.5]\n");
-    newton_raphson(f, df_proyecto, 0.5, tol, ciclos_cpu, bits_precision);
+    newton_raphson(ecuacion_f, ecuacion_df, 0.5, tol, ciclos_cpu, bits_precision);
     printf("\n---------------------------------------------------------------------------------\n");
 
     // ---------------------------------------------------------------------------------
-    // TEST 3: EJECUCIÓN DEL SOLVER DE PUNTO FIJO
+    // TEST 3: METODO DE PUNTO FIJO (Inyectando iteradora 'ecuacion_g')
     // ---------------------------------------------------------------------------------
     printf(">> DISPARANDO SUBPROCESO: PUNTO FIJO [Punto Inicial x0 = 0.5]\n");
-    punto_fijo(g_proyecto, 0.5, tol, ciclos_cpu, bits_precision);
+    punto_fijo(ecuacion_g, 0.5, tol, ciclos_cpu, bits_precision);
     printf("\n---------------------------------------------------------------------------------\n");
 
     // ---------------------------------------------------------------------------------
-    // TEST 4: PRUEBA DE CONTROL DE EXCEPCIONES (Simulación de Fallas)
+    // TEST 4: PRUEBA DEL CONTROLADOR DE INTERRUPCIONES (Simulación de falla)
     // ---------------------------------------------------------------------------------
-    printf(">> PROBANDO INTERRUPCIONES SIMULADAS (Supervisor de Teoremas):\n");
-    printf("Intentando biseccion en intervalo invalido [1.0, 2.0]...\n");
-    biseccion(f, 1.0, 2.0, tol, ciclos_cpu, bits_precision);
+    printf(">> PROBANDO BUS DE EXCEPCIONES: Intento de Biseccion con violacion del TVI [1.0, 2.0]\n");
+    // Al pasarle un intervalo donde no cruza el cero, el motor debe escupir el error 0x01
+    biseccion(ecuacion_f, 1.0, 2.0, tol, ciclos_cpu, bits_precision);
 
+    printf("\n[SYS] Fin de la ejecucion. Liberando memoria.\n");
     return 0;
 }

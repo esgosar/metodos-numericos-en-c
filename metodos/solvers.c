@@ -20,8 +20,8 @@ double                 biseccion            (double         (*f)(double),       
                                              int            max_iter,            // max_iter ∈ ℕ
                                              int            decimales)           // decimales ∈ ℕ
 {
-    // [Paso 1 del PDF]: Validar signos opuestos mediante el Teorema del Valor Intermedio
-    if (!teorema_valor_intermedio(a, b)) return NAN;
+    // ENLACE CORREGIDO: Se inyecta la direccion de 'f' hacia el supervisor logico
+    if (!teorema_valor_intermedio(f, a, b)) return NAN;
 
     // Cabezal de la tabla matricial especificada en la Página 2 del PDF
     printf("\n| %-3s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-11s | %-9s |\n", 
