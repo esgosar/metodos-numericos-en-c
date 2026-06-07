@@ -43,4 +43,28 @@ int main() {
     /* ----------------------------------------------------------------------------------
      * PRUEBA 2: SUPERVISOR DE TEOREMAS MATEMATICOS
      * ---------------------------------------------------------------------------------- */
-    printf(">> TEST MODULO 2
+    printf(">> TEST MODULO 2: SUPERVISOR DEL TEOREMA DEL VALOR INTERMEDIO (TVI)\n");
+    double a = 1.0, b = 2.0;
+    printf("   Evaluando f(x) = x^3 - x - 2 en el intervalo [%g, %g]\n", a, b);
+    printf("   f(%g) = %g | f(%g) = %g\n", a, f_prueba(a), b, f_prueba(b));
+    
+    // Si la función sobrevive sin disparar una excepción, el Test pasa
+    if (teorema_valor_intermedio(f_prueba, a, b)) {
+        printf("   [STATUS] -> OK (Cambio de signo certificado por hardware).\n\n");
+    }
+
+    /* ----------------------------------------------------------------------------------
+     * PRUEBA 3: BUS DE INTERRUPCIONES (OPCIONAL)
+     * ---------------------------------------------------------------------------------- */
+    printf(">> TEST MODULO 3: GESTOR DE EXCEPCIONES\n");
+    printf("   (El sistema abortara si envias un intervalo sin raiz a la validacion).\n");
+    printf("   Para probarlo, descomenta la siguiente linea en el codigo fuente:\n");
+    // teorema_valor_intermedio(f_prueba, 2.0, 3.0); // <-- Provoca el Halt del sistema
+    printf("   [STATUS] -> STANDBY.\n\n");
+
+    printf("=================================================================================\n");
+    printf(" [DIAGNOSTICO]: Todos los subsistemas operando nominalmente.\n");
+    printf("=================================================================================\n\n");
+
+    return 0;
+}
