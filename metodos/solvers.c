@@ -6,12 +6,11 @@
 #include "../teoremas/validacion.h"              // Supervisor del Teorema (TVI)
 
 /* ==========================================================================================
- * MODULO: SOLVERS ALGORITMICOS PARA ENCONTRAR RAICES
- * ==========================================================================================
- * OUTPUT REGISTER   | FUNCTION POINTER     | INPUT ARGUMENTS (STACK ALLOCATION) | MATH DOMAIN
- * (64-bit IEEE754)  | (Code Address)       | (Type)        (Identifier)         | (Set Theory)
- * ==========================================================================================
- */
+ MODULO: SOLVERS ALGORITMICOS PARA ENCONTRAR RAICES
+ ==========================================================================================
+ OUTPUT REGISTER   | FUNCTION POINTER     | INPUT ARGUMENTS (STACK ALLOCATION) | MATH DOMAIN
+ (64-bit IEEE754)  | (Code Address)       | (Type)        (Identifier)         | (Set Theory)
+ ========================================================================================== */
 
 double                 biseccion            (double         (*f)(double),        // f: ℝ → ℝ
                                              double         a,                   // a ∈ ℝ
@@ -37,22 +36,37 @@ double                 biseccion            (double         (*f)(double),       
     double                 error              = 0.0;
 
     for (int n = 1; n <= max_iter; n++) {
-        p     = redondear((a + b) / 2.0, decimales); 
+        // 1. EL ESPACIO SE MANTIENE EXACTO (Doble precision)
+        p     = (a + b) / 2.0; 
+        error = (b - a) / 2.0; 
+
+        // 2. EL MOTOR FPU EVALUA LA FUNCION CON REDONDEO
         fp    = redondear(f(p), decimales);
         fa    = redondear(f(a), decimales);
         fb    = redondear(f(b), decimales);
-        prod  = redondear(fa * fp, decimales);
-        error = redondear((b - a) / 2.0, decimales); 
+        // prod  = fa * fp; NO REDONDEAR porque genera underflow en cantidades muy pequeñas. 
 
+        
+
+        // La impresion (printf) se encarga de mostrarlos cortados visualmente,
+        // pero en la memoria de la computadora siguen siendo exactos.
         printf("| %-3d | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-11.*f | %-9.*f |\n", 
                n, decimales, a, decimales, b, decimales, p, decimales, fa, decimales, fb, decimales, fp, decimales, prod, decimales, error);
 
         if (error < tolerancia) {
-            printf("\n[✓] Biseccion: Convergencia alcanzada en la iteracion %d: p = %.*f\n", n, decimales, p);
-            return p;
+            // AQUI SI REDONDEAMOS EL RESULTADO FINAL PARA ENTREGARLO
+            double resultado_final = redondear(p, decimales);
+            printf("\n[✓] Biseccion: Convergencia alcanzada en la iteracion %d: p = %.*f\n", n, decimales, resultado_final);
+            return resultado_final;
         }
 
-        if (prod > 0.0) { a = p; } else { b = p; }
+        // En lugar de calcular prod y hacer: if (prod > 0.0)
+        // Evaluamos directamente si fa y fp tienen el mismo signo:
+        if ((fa > 0.0 && fp > 0.0) || (fa < 0.0 && fp < 0.0)) { 
+            a = p; 
+        } else { 
+            b = p; 
+        }
     }
 
     disparar_excepcion(EXC_TIMEOUT_ITERACIONES);

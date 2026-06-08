@@ -6,14 +6,16 @@ CC       = gcc
 CFLAGS   = -Wall -Wextra -O2
 LIBS     = -lm
 
-# Ahora mapeamos todo el motor porque validacion.c depende de excepciones.c
+# AHORA INCLUIMOS EL SOLVER DE BISECCION AL MOTOR
 CORE_SRC = ../core/aritmetica.c \
            ../errores/excepciones.c \
            ../errores/metricas.c \
-           ../teoremas/validacion.c
+           ../teoremas/validacion.c \
+           ../metodos/solvers.c
 
 CORE_OBJ = $(CORE_SRC:.c=.o)
 
+# Busca todos los archivos que empiecen con un numero (1.c, 11.c, etc.)
 PROB_SRC = $(wildcard [0-9]*.c)
 PROB_EXE = $(PROB_SRC:.c=)
 
