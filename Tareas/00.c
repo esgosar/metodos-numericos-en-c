@@ -6,8 +6,7 @@
 #define DEC 6
 #define TOL 1e-5
 #define PI 3.141592653589793
-#define E  2.718281828459045
-
+#define E  2.71828182845904
 /* ==========================================================================================
  * FUNCION UNIVERSAL DE PRUEBA: f(x) = x^2 - 4 
  * Raiz esperada: x = 2.0
