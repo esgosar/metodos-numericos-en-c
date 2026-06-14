@@ -2,71 +2,40 @@
 #include <math.h>
 #include "solvers.h"
 #include "../core/aritmetica.h"
-#include "../errores/excepciones.h"              // Bus de interrupciones de hardware
-#include "../teoremas/validacion.h"              // Supervisor del Teorema (TVI)
+#include "../errores/excepciones.h"
+#include "../teoremas/validacion.h"
 
 /* ==========================================================================================
- MODULO: SOLVERS ALGORITMICOS PARA ENCONTRAR RAICES
- ==========================================================================================
- OUTPUT REGISTER   | FUNCTION POINTER     | INPUT ARGUMENTS (STACK ALLOCATION) | MATH DOMAIN
- (64-bit IEEE754)  | (Code Address)       | (Type)        (Identifier)         | (Set Theory)
- ========================================================================================== */
+ * MODULO 1: SOLVERS ALGORITMICOS PARA ENCONTRAR RAICES 1D
+ * ========================================================================================== */
 
-double                 biseccion            (double         (*f)(double),        // f: ℝ → ℝ
-                                             double         a,                   // a ∈ ℝ
-                                             double         b,                   // b ∈ ℝ | b > a
-                                             double         tolerancia,          // Tol ∈ ℝ⁺
-                                             int            max_iter,            // max_iter ∈ ℕ
-                                             int            decimales)           // decimales ∈ ℕ
-{
-    // ENLACE CORREGIDO: Se inyecta la direccion de 'f' hacia el supervisor logico
+double biseccion(double (*f)(double), double a, double b, double tolerancia, int max_iter, int decimales) {
     if (!teorema_valor_intermedio(f, a, b)) return NAN;
 
-    // Cabezal de la tabla matricial especificada en la Página 2 del PDF
     printf("\n| %-3s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s | %-11s | %-9s |\n", 
            "n", "a", "b", "p", "f(a)", "f(b)", "f(p)", "f(a)*f(p)", "Error");
     printf("|-----|-----------|-----------|-----------|-----------|-----------|-----------|-------------|-----------|\n");
 
-    /* --- ASIGNACION DE REGISTROS DE TRABAJO (STACK) --- */
-    double                 p                  = 0.0;
-    double                 fp                 = 0.0;
-    double                 fa                 = 0.0;
-    double                 fb                 = 0.0;
-    double                 prod               = 0.0;
-    double                 error              = 0.0;
+    double p = 0.0, fp = 0.0, fa = 0.0, fb = 0.0, prod = 0.0, error = 0.0;
 
     for (int n = 1; n <= max_iter; n++) {
-        // 1. EL ESPACIO SE MANTIENE EXACTO (Doble precision)
         p     = (a + b) / 2.0; 
         error = (b - a) / 2.0; 
 
-        // 2. EL MOTOR FPU EVALUA LA FUNCION CON REDONDEO
         fp    = redondear(f(p), decimales);
         fa    = redondear(f(a), decimales);
         fb    = redondear(f(b), decimales);
-        // prod  = fa * fp; NO REDONDEAR porque genera underflow en cantidades muy pequeñas. 
 
-        
-
-        // La impresion (printf) se encarga de mostrarlos cortados visualmente,
-        // pero en la memoria de la computadora siguen siendo exactos.
         printf("| %-3d | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-11.*f | %-9.*f |\n", 
                n, decimales, a, decimales, b, decimales, p, decimales, fa, decimales, fb, decimales, fp, decimales, prod, decimales, error);
 
         if (error < tolerancia) {
-            // AQUI SI REDONDEAMOS EL RESULTADO FINAL PARA ENTREGARLO
             double resultado_final = redondear(p, decimales);
             printf("\n[✓] Biseccion: Convergencia alcanzada en la iteracion %d: p = %.*f\n", n, decimales, resultado_final);
             return resultado_final;
         }
 
-        // En lugar de calcular prod y hacer: if (prod > 0.0)
-        // Evaluamos directamente si fa y fp tienen el mismo signo:
-        if ((fa > 0.0 && fp > 0.0) || (fa < 0.0 && fp < 0.0)) { 
-            a = p; 
-        } else { 
-            b = p; 
-        }
+        if ((fa > 0.0 && fp > 0.0) || (fa < 0.0 && fp < 0.0)) { a = p; } else { b = p; }
     }
 
     disparar_excepcion(EXC_TIMEOUT_ITERACIONES);
@@ -75,84 +44,203 @@ double                 biseccion            (double         (*f)(double),       
 
 /* ========================================================================================== */
 
-double                 newton_raphson       (double         (*f)(double),        // f: ℝ → ℝ
-                                             double         (*df)(double),       // f': ℝ → ℝ
-                                             double         x0,                  // x0 ∈ ℝ
-                                             double         tolerancia,          // Tol ∈ ℝ⁺
-                                             int            max_iter,            // max_iter ∈ ℕ
-                                             int            decimales)           // decimales ∈ ℕ
-{
-    // Cabezal de la tabla matricial especificada en la Página 2 del PDF de Newton
+double newton_raphson(double (*f)(double), double (*df)(double), double x0, double tolerancia, int max_iter, int decimales) {
     printf("\n| %-3s | %-9s | %-9s | %-9s |\n", "n", "Xn", "Xn+1", "Error");
     printf("|-----|-----------|-----------|-----------|\n");
 
-    /* --- ASIGNACION DE REGISTROS DE TRABAJO (STACK) --- */
-    double                 xn                 = redondear(x0, decimales);
-    double                 xn_siguiente       = 0.0;
-    double                 fx                 = 0.0;
-    double                 dfx                = 0.0;
-    double                 error              = 0.0;
+    double xn = redondear(x0, decimales), xn_siguiente = 0.0, fx = 0.0, dfx = 0.0, error = 0.0;
 
     for (int n = 1; n <= max_iter; n++) {
-        fx  = redondear(f(xn), decimales);
-        dfx = redondear(df(xn), decimales);
+        fx  = f(xn);   
+        dfx = df(xn);  
 
-        // INTERRUPCION FPU: Pendiente nula (Evita indeterminación logica x / 0.0)
         if (dfx == 0.0) {
             disparar_excepcion(EXC_NEWTON_DERIVADA_CERO);
             return NAN;
         }
 
-        xn_siguiente = redondear(xn - (fx / dfx), decimales);
-        error        = redondear(fabs(xn - xn_siguiente), decimales);
+        xn_siguiente = xn - (fx / dfx);
+        error        = fabs(xn_siguiente - xn);
 
         printf("| %-3d | %-9.*f | %-9.*f | %-9.*f |\n", 
                n, decimales, xn, decimales, xn_siguiente, decimales, error);
 
         if (error < tolerancia) {
             printf("\n[✓] Newton-Raphson: Convergencia alcanzada en la iteracion %d: x = %.*f\n", n, decimales, xn_siguiente);
-            return xn_siguiente;
+            return redondear(xn_siguiente, decimales);
         }
 
         xn = xn_siguiente;
     }
-
+    
     disparar_excepcion(EXC_TIMEOUT_ITERACIONES);
     return xn;
 }
 
 /* ========================================================================================== */
 
-double                 punto_fijo           (double         (*g)(double),        // g: ℝ → ℝ (Iteradora)
-                                             double         x0,                  // x0 ∈ ℝ
-                                             double         tolerancia,          // Tol ∈ ℝ⁺
-                                             int            max_iter,            // max_iter ∈ ℕ
-                                             int            decimales)           // decimales ∈ ℕ
-{
-    // Cabezal de la tabla matricial especificada en la Página 2 del PDF de Punto Fijo
+double punto_fijo(double (*g)(double), double x0, double tolerancia, int max_iter, int decimales) {
     printf("\n| %-3s | %-9s | %-9s | %-9s |\n", "n", "x_n", "g(x_n)", "Error");
     printf("|-----|-----------|-----------|-----------|\n");
 
-    /* --- ASIGNACION DE REGISTROS DE TRABAJO (STACK) --- */
-    double                 xn                 = redondear(x0, decimales);
-    double                 gx                 = 0.0;
-    double                 error              = 0.0;
+    double x_prev = redondear(x0, decimales);
+    double val_g0 = g(x_prev);
+    
+    if (isnan(val_g0)) {
+        disparar_excepcion(EXC_NEWTON_DERIVADA_CERO);
+        return NAN;
+    }
+    
+    double xn = redondear(val_g0, decimales); 
 
     for (int n = 1; n <= max_iter; n++) {
-        gx    = redondear(g(xn), decimales);
-        error = redondear(fabs(xn - gx), decimales);
+        double error = redondear(fabs(xn - x_prev), decimales);
+        double val_gnext = g(xn);
+        
+        if (isnan(val_gnext)) {
+            printf("| %-3d | %-9.*f | %-9s | %-9.*f |\n", n, decimales, xn, "NAN", decimales, error);
+            disparar_excepcion(EXC_NEWTON_DERIVADA_CERO);
+            return NAN;
+        }
+        
+        double x_next = redondear(val_gnext, decimales);
 
-        printf("| %-3d | %-9.*f | %-9.*f | %-9.*f |\n", 
-               n, decimales, xn, decimales, gx, decimales, error);
+        printf("| %-3d | %-9.*f | %-9.*f | %-9.*f |\n", n, decimales, xn, decimales, x_next, decimales, error);
 
         if (error < tolerancia) {
-            printf("\n[✓] Punto Fijo: Convergencia alcanzada en la iteracion %d: x = %.*f\n", n, decimales, gx);
-            return gx;
+            printf("\n[✓] Punto Fijo: Convergencia alcanzada en la iteracion %d: x = %.*f\n", n, decimales, xn);
+            return xn;
         }
 
-        xn = gx;
+        x_prev = xn;
+        xn     = x_next;
     }
 
     disparar_excepcion(EXC_TIMEOUT_ITERACIONES);
     return xn;
+}
+
+/* ==========================================================================================
+ * NUEVOS METODOS A TESTEAR (Secante y Posicion Falsa)
+ * ========================================================================================== */
+
+double secante(double (*f)(double), double p0, double p1, double tolerancia, int max_iter, int decimales) {
+    printf("\n| %-3s | %-9s | %-9s | %-9s | %-9s |\n", "n", "p_n-1", "p_n", "p_n+1", "Error");
+    printf("|-----|-----------|-----------|-----------|-----------|\n");
+
+    double q0 = f(p0);
+    double q1 = f(p1);
+    double p = 0.0, error = 0.0;
+
+    for (int n = 2; n <= max_iter; n++) {
+        // Validacion de pendiente cero (Evita division por cero)
+        if ((q1 - q0) == 0.0) {
+            disparar_excepcion(EXC_NEWTON_DERIVADA_CERO);
+            return NAN;
+        }
+
+        // Formula de la Secante (sin redondear variables intermedias para maxima precision)
+        p = p1 - q1 * (p1 - p0) / (q1 - q0);
+        error = fabs(p - p1);
+
+        printf("| %-3d | %-9.*f | %-9.*f | %-9.*f | %-9.*f |\n", 
+               n, decimales, p0, decimales, p1, decimales, p, decimales, error);
+
+        if (error < tolerancia) {
+            printf("\n[✓] Secante: Convergencia alcanzada en la iteracion %d: p = %.*f\n", n, decimales, p);
+            return redondear(p, decimales);
+        }
+
+        // Shift de registros para siguiente ciclo
+        p0 = p1;
+        q0 = q1;
+        p1 = p;
+        q1 = f(p);
+    }
+
+    disparar_excepcion(EXC_TIMEOUT_ITERACIONES);
+    return p;
+}
+
+/* ========================================================================================== */
+
+double posicion_falsa(double (*f)(double), double p0, double p1, double tolerancia, int max_iter, int decimales) {
+    if (!teorema_valor_intermedio(f, p0, p1)) return NAN;
+
+    printf("\n| %-3s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s |\n", 
+           "n", "p0", "p1", "p", "f(p0)", "f(p1)", "f(p)");
+    printf("|-----|-----------|-----------|-----------|-----------|-----------|-----------|\n");
+
+    double q0 = f(p0);
+    double q1 = f(p1);
+    double p = 0.0, q = 0.0, error = 0.0;
+
+    for (int n = 2; n <= max_iter; n++) {
+        p = p1 - q1 * (p1 - p0) / (q1 - q0);
+        q = f(p);
+        error = fabs(p - p1);
+
+        printf("| %-3d | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f |\n", 
+               n, decimales, p0, decimales, p1, decimales, p, decimales, q0, decimales, q1, decimales, q);
+
+        if (error < tolerancia) {
+            printf("\n[✓] Posicion Falsa 1: Convergencia en iteracion %d: p = %.*f\n", n, decimales, p);
+            return redondear(p, decimales);
+        }
+
+        // Control de signos (Bracket preservation)
+        if (q * q1 < 0.0) {
+            p0 = p1;
+            q0 = q1;
+        } 
+        p1 = p;
+        q1 = q;
+    }
+
+    disparar_excepcion(EXC_TIMEOUT_ITERACIONES);
+    return p;
+}
+
+/* ========================================================================================== */
+
+double posicion_falsa_modificada(double (*f)(double), double p0, double p1, double tolerancia, int max_iter, int decimales) {
+    if (!teorema_valor_intermedio(f, p0, p1)) return NAN;
+
+    printf("\n| %-3s | %-9s | %-9s | %-9s | %-9s | %-9s | %-9s |\n", 
+           "n", "p0", "p1", "p", "f(p0)", "f(p1)", "f(p)");
+    printf("|-----|-----------|-----------|-----------|-----------|-----------|-----------|\n");
+
+    double q0 = f(p0);
+    double q1 = f(p1);
+    double p = 0.0, q = 0.0, error = 0.0;
+
+    for (int n = 2; n <= max_iter; n++) {
+        p = p1 - q1 * (p1 - p0) / (q1 - q0);
+        q = f(p);
+        error = fabs(p - p1);
+
+        printf("| %-3d | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f | %-9.*f |\n", 
+               n, decimales, p0, decimales, p1, decimales, p, decimales, q0, decimales, q1, decimales, q);
+
+        if (error < tolerancia) {
+            printf("\n[✓] Pos. Falsa Modificada (Illinois): Convergencia iteracion %d: p = %.*f\n", n, decimales, p);
+            return redondear(p, decimales);
+        }
+
+        // Algoritmo de Illinois (Anti-Estancamiento)
+        if (q * q1 < 0.0) {
+            p0 = p1;
+            q0 = q1;
+            p1 = p;
+            q1 = q;
+        } else {
+            // El truco de Illinois: Forzamos la caida de la secante reduciendo q0 a la mitad
+            q0 = q0 / 2.0;
+            p1 = p;
+            q1 = q;
+        }
+    }
+
+    disparar_excepcion(EXC_TIMEOUT_ITERACIONES);
+    return p;
 }
