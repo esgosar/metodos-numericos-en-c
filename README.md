@@ -2,7 +2,7 @@
 
 Este repositorio contiene un motor para el procesamiento de cálculos de análisis numérico escrito en C estándar.
 
-El diseño cumple con las directrices algorítmicas e impresión de matrices especificadas en los flujos de cálculo numérico para **Bisección**, **Newton-Raphson**, **Punto Fijo** y validación de **Teoremas Fundamentales del Cálculo**.
+El diseño cumple con las directrices algorítmicas e impresión de matrices especificadas en los flujos de cálculo numérico para **Bisección**, **Newton-Raphson**, **Punto Fijo**, **Secante**, **Posición Falsa** y **Posición Falsa Modificada**, junto con la validación de **Teoremas Fundamentales del Cálculo**.
 
 ---
 
@@ -23,11 +23,12 @@ El código base está completamente segmentado, aislando los resolvedores algor�
 │   ├── validacion.c       # Supervisor de hardware para el Teorema del Valor Intermedio (TVI)
 │   └── validacion.h
 ├── metodos/
-│   ├── solvers.c          # Motor iterativo principal (Bisección, Newton, Punto Fijo)
+│   ├── solvers.c          # Motor iterativo 1D (Bisección, Newton, Punto Fijo, Secante, Regula Falsi, Illinois)
 │   └── solvers.h
-├── Tareas/                # 📂 Directorio de ejercicios prácticos resueltos (Cap. 1)
-│   ├── 1.c, 2.c ...       # Scripts de tareas inyectados al motor central
-│   ├── Makefile           # Pipeline de procesamiento masivo para ejercicios
+├── Tareas/                # 📂 Directorio de ejercicios prácticos resueltos y banco de pruebas
+│   ├── 00.c               # Script de Prueba Integral Universal (Test Bench para todos los solvers)
+│   ├── XX.c               # Scripts de tareas y problemas de los capítulos inyectados al motor
+│   ├── Makefile           # Pipeline de procesamiento masivo para compilar y ejecutar ejercicios
 │   └── README.md          # Documentación específica de los problemas resueltos
-├── main.c                 # Banco de pruebas central (Test Bench)
+├── main.c                 # Punto de entrada base
 └── Makefile               # Sistema automatizado de compilación global
