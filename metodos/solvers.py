@@ -1,5 +1,4 @@
 from mpmath import mp, isnan
-
 # ==========================================================================================
 # [MODULO 1]: BUSQUEDA DE RAICES EN UNA VARIABLE (Ecuaciones No Lineales 1D)
 # MOTOR DE PRECISION ARBITRARIA (Wolfram/MATLAB Emulator)
@@ -40,16 +39,17 @@ def biseccion(f, a, b, tolerancia, max_iter, decimales=6):
 
 # ==========================================================================================
 
-def newton_raphson(f, df, x0, tolerancia, max_iter, decimales=6):
+def newton_raphson(f, x0, tolerancia, max_iter, decimales=6):
     xn = mp.mpf(x0)
     tol = mp.mpf(tolerancia)
 
-    print(f"\n| {'n':<3} | {'Xn':<9} | {'Xn+1':<9} | {'Error':<9} |")
-    print("-" * 47)
+    print(f"\n| {'n':<3} | {'Xn':<12} | {'Xn+1':<12} | {'Error':<12} |")
+    print("-" * 55)
 
     for n in range(1, max_iter + 1):
         fx = f(xn)
-        dfx = df(xn)
+        # MAGIA: Python calcula la primera derivada automáticamente
+        dfx = mp.diff(f, xn) 
 
         if dfx == 0:
             print("Excepción: Derivada nula detectada.")
@@ -58,7 +58,7 @@ def newton_raphson(f, df, x0, tolerancia, max_iter, decimales=6):
         xn_siguiente = xn - (fx / dfx)
         error = abs(xn_siguiente - xn)
 
-        print(f"| {n:<3} | {float(xn): 9.{decimales}f} | {float(xn_siguiente): 9.{decimales}f} | {float(error): 9.{decimales}f} |")
+        print(f"| {n:<3} | {float(xn): 10.{decimales}f} | {float(xn_siguiente): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
 
         if error < tol:
             print(f"\n[✓] Newton-Raphson: Convergencia en iteración {n}: x = {float(xn_siguiente):.{decimales}f}")
@@ -66,7 +66,39 @@ def newton_raphson(f, df, x0, tolerancia, max_iter, decimales=6):
 
         xn = xn_siguiente
 
-    print("Excepción: Límite de iteraciones alcanzado.")
+    return float(xn)
+
+# ==========================================================================================
+
+def newton_modificado(f, x0, tolerancia, max_iter, decimales=6):
+    xn = mp.mpf(x0)
+    tol = mp.mpf(tolerancia)
+
+    print(f"\n| {'n':<3} | {'Xn':<12} | {'Xn+1':<12} | {'Error':<12} |")
+    print("-" * 55)
+
+    for n in range(1, max_iter + 1):
+        fx = f(xn)
+        # MAGIA: Primera y segunda derivada automáticas (grado 1 y grado 2)
+        dfx = mp.diff(f, xn, 1) 
+        ddfx = mp.diff(f, xn, 2)
+
+        denominador = (dfx**2) - (fx * ddfx)
+
+        if denominador == 0:
+            return float('nan')
+
+        xn_siguiente = xn - (fx * dfx) / denominador
+        error = abs(xn_siguiente - xn)
+
+        print(f"| {n:<3} | {float(xn): 10.{decimales}f} | {float(xn_siguiente): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+
+        if error < tol:
+            print(f"\n[✓] Newton Modificado: Convergencia en iteración {n}: x = {float(xn_siguiente):.{decimales}f}")
+            return float(xn_siguiente)
+
+        xn = xn_siguiente
+
     return float(xn)
 
 # ==========================================================================================

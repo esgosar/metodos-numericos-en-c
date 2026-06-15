@@ -24,8 +24,8 @@ def f_d(x):
 # EJECUCIÓN
 # ==========================================
 if __name__ == "__main__":
-    print("\n--- EJERCICIO 1b: Newton Estándar (x0 = -1.5) ---")
-    newton_raphson(f_b, -1.5, TOL, MAX_ITER, DEC)
+    print("\n--- EJERCICIO 3b: Newton Modificado (x0 = -1.5) ---")
+    newton_modificado(f_b, -1.5, TOL, MAX_ITER, DEC)
 
-    print("\n--- EJERCICIO 1d: Newton Estándar (x0 = -0.5) ---")
-    newton_raphson(f_d, -0.5, TOL, MAX_ITER, DEC)
+    print("\n--- EJERCICIO 3d: Newton Modificado (x0 = -0.5) ---")
+    newton_modificado(f_d, -0.5, TOL, MAX_ITER, DEC)
