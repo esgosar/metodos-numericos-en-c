@@ -223,47 +223,61 @@ def posicion_falsa_modificada(f, p0, p1, tolerancia, max_iter, decimales=6):
 # ==========================================================================================
 
 def muller(f, x0, x1, x2, tolerancia, max_iter, decimales=6):
-    x0, x1, x2 = mp.mpf(x0), mp.mpf(x1), mp.mpf(x2)
+    # Usamos mp.mpc para habilitar explícitamente la navegación en el plano complejo
+    x0, x1, x2 = mp.mpc(x0), mp.mpc(x1), mp.mpc(x2)
     tol = mp.mpf(tolerancia)
     
-    print(f"\n| {'n':<3} | {'Xn':<12} | {'Error':<12} |")
-    print("-" * 35)
+    # Helper interno para imprimir bonito (oculta la 'j' si es un número puramente real)
+    def fmt_cplx(val):
+        r = float(mp.re(val))
+        i = float(mp.im(val))
+        if abs(i) < 1e-12:  # Prácticamente real
+            return f"{r: 10.{decimales}f}"
+        else:
+            signo = "+" if i >= 0 else "-"
+            return f"{r: 10.{decimales}f} {signo} {abs(i):.{decimales}f}j"
+
+    # Ampliamos la columna de Xn porque los complejos ocupan más espacio visual
+    print(f"\n| {'n':<3} | {'Xn':<26} | {'Error':<12} |")
+    print("-" * 50)
     
     for n in range(3, max_iter + 1):
         h1 = x1 - x0
         h2 = x2 - x1
         
-        # Protección si los puntos colisionan (raíz encontrada o estancamiento)
+        # Protección si los puntos colisionan
         if h1 == 0 or h2 == 0 or (h2 + h1) == 0:
-            return float(mp.re(x2))
+            return complex(x2)
             
         d1 = (f(x1) - f(x0)) / h1
         d2 = (f(x2) - f(x1)) / h2
         d = (d2 - d1) / (h2 + h1)
         
         b = d2 + h2 * d
+        # mpmath maneja raíces de números negativos automáticamente gracias a mp.mpc
         D = mp.sqrt(b**2 - 4 * f(x2) * d)
         
-        # Maximizar el denominador
+        # Maximizar el denominador usando el módulo complejo (abs)
         E = b + D if abs(b + D) > abs(b - D) else b - D
             
         if E == 0:
-            return float(mp.re(x2))
+            return complex(x2)
             
         h = -2 * f(x2) / E
         x3 = x2 + h
-        error = abs(x3 - x2)
+        error = abs(x3 - x2)  # Módulo del vector de error en el plano complejo
         
-        print(f"| {n:<3} | {float(mp.re(x3)): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+        str_x3 = fmt_cplx(x3)
+        print(f"| {n:<3} | {str_x3:<26} | {float(error): 10.{decimales}f} |")
         
         if error < tol:
-            print(f"\n[✓] Müller: Convergencia en iteración {n}: x = {float(mp.re(x3)):.{decimales}f}")
-            return float(mp.re(x3))
+            print(f"\n[✓] Müller: Convergencia en iteración {n}: x = {str_x3.strip()}")
+            return complex(x3)
             
         x0, x1, x2 = x1, x2, x3
         
-    return float(mp.re(x2))
-
+    return complex(x2)
+    
 # ==========================================================================================
 
 def secante(f, x0, x1, tolerancia, max_iter, decimales=6):
