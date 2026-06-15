@@ -9,14 +9,14 @@ mp.dps = 50
 DEC = 6
 
 def f(x): 
-    return cos(x)
+    return (1+x)**0.5
 
 if __name__ == "__main__":
     print("===================================================================")
-    print("   UNIDAD 3.1 - EJERCICIO 3a")
+    print("   UNIDAD 3.1 - EJERCICIO 3b")
     print("===================================================================\n")
 
-    # Nodos y punto a evaluar (Ajustados a x1 = 0.3)
+    # Nodos y punto a evaluar (Ajustados a x1 = 0.6)
     x_nodos_p1 = [mp.mpf('0.0'), mp.mpf('0.6')]
     x_nodos_p2 = [mp.mpf('0.0'), mp.mpf('0.6'), mp.mpf('0.9')]
     x_eval = mp.mpf('0.45')
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # COTA DE ERROR - POLINOMIO GRADO 1 (n = 1)
     # ---------------------------------------------------------
     # El teorema exige la derivada de orden (n+1) = 2.
-    # El máximo absoluto de f''(x) en [0.0, 0.3] ocurre en x = 0.0
+    # El máximo absoluto de f''(x) en [0.0, 0.6] ocurre en x = 0.0
     max_deriv_p1 = abs(mp.diff(f, mp.mpf('0.0'), 2)) # <- Se añade el '2' para la segunda derivada
     
     cota_p1 = cota_error_lagrange(x_nodos_p1, x_eval, max_deriv_p1)

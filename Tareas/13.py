@@ -24,11 +24,11 @@ if __name__ == "__main__":
     # GRADO 1 (Encendemos mostrar_polinomio)
     print(f"--- POLINOMIO DE GRADO 1 (Nodos: {x_nodos[0]} y {x_nodos[1]}) ---")
     p1_eval = lagrange(x_nodos[:2], y_nodos[:2], x_eval, mostrar_polinomio=True, decimales=6)
-    print(f"Resultado -> P1(0.45) = {p1_eval:.{DEC}f}")
+    print(f"Resultado -> P1({x_eval}) = {p1_eval:.{DEC}f}")
     print(f"Error Absoluto = {float(abs(p1_eval - valor_real)):.{DEC}f}\n")
 
     # GRADO 2 (Encendemos mostrar_polinomio)
     print(f"--- POLINOMIO DE GRADO 2 (Nodos: {x_nodos[0]}, {x_nodos[1]} y {x_nodos[2]}) ---")
     p2_eval = lagrange(x_nodos[:3], y_nodos[:3], x_eval, mostrar_polinomio=True, decimales=6)
-    print(f"Resultado -> P2(0.45) = {p2_eval:.{DEC}f}")
+    print(f"Resultado -> P2({x_eval}) = {p2_eval:.{DEC}f}")
     print(f"Error Absoluto = {float(abs(p2_eval - valor_real)):.{DEC}f}\n")

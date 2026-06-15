@@ -114,3 +114,35 @@ def cota_error_lagrange(x_nodos, x_eval, max_deriv_val):
     cota = (max_deriv_val / factorial(n + 1)) * fabs(producto)
     
     return float(cota)
+
+def neville(nodos, y_nodos, x_eval):
+    """
+    Implementación del método de Neville para interpolación polinomial.
+    
+    Parámetros:
+    - nodos: Lista de puntos x_i (convertidos o convertibles a mpf)
+    - y_nodos: Lista de valores f(x_i)
+    - x_eval: El punto x donde se desea evaluar el polinomio
+    
+    Retorna:
+    - Q: Matriz triangular (lista de listas) con las aproximaciones.
+         Q[i][j] es el polinomio de grado j que usa los nodos desde i-j hasta i.
+    """
+    from mpmath import mp
+    
+    n = len(nodos)
+    # Inicializar matriz triangular con ceros de alta precisión
+    Q = [[mp.mpf(0)] * n for _ in range(n)]
+    
+    # Grado 0: La primera columna son los valores conocidos de y
+    for i in range(n):
+        Q[i][0] = mp.mpf(y_nodos[i])
+        
+    # Construcción de las columnas de grados superiores (j = grado del polinomio)
+    for j in range(1, n):
+        for i in range(j, n):
+            num = (mp.mpf(x_eval) - mp.mpf(nodos[i-j])) * Q[i][j-1] - (mp.mpf(x_eval) - mp.mpf(nodos[i])) * Q[i-1][j-1]
+            den = mp.mpf(nodos[i]) - mp.mpf(nodos[i-j])
+            Q[i][j] = num / den
+            
+    return Q
