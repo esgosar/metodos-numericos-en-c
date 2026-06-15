@@ -1,4 +1,4 @@
-# 🐍 Migración a Python: El Oráculo de Alta Precisión
+# 🐍 Migración a Python
 *(Rama: `refactor-python`)*
 
 Este documento explica la historia y la justificación técnica detrás de la migración de nuestro Motor de Análisis Numérico desde el lenguaje C estándar hacia Python con precisión arbitraria.
