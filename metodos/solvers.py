@@ -129,36 +129,62 @@ def punto_fijo(g, x0, tolerancia, max_iter, decimales=6):
 
 # ==========================================================================================
 
-def secante(f, p0, p1, tolerancia, max_iter, decimales=6):
-    p0 = mp.mpf(p0)
-    p1 = mp.mpf(p1)
+def secante(f, x0, x1, tolerancia, max_iter, decimales=6):
+    x0, x1 = mp.mpf(x0), mp.mpf(x1)
     tol = mp.mpf(tolerancia)
-
-    print(f"\n| {'n':<3} | {'p_n-1':<9} | {'p_n':<9} | {'p_n+1':<9} | {'Error':<9} |")
-    print("-" * 62)
-
-    q0 = f(p0)
-    q1 = f(p1)
-
-    for n in range(2, max_iter + 1):
-        if (q1 - q0) == 0:
-            print("Excepción: Pendiente nula (división por cero).")
+    
+    print(f"\n| {'n':<3} | {'Xn':<12} | {'Error':<12} |")
+    print("-" * 35)
+    
+    for n in range(1, max_iter + 1):
+        fx0 = f(x0)
+        fx1 = f(x1)
+        if fx1 - fx0 == 0:
             return float('nan')
-
-        p = p1 - q1 * (p1 - p0) / (q1 - q0)
-        error = abs(p - p1)
-
-        print(f"| {n:<3} | {float(p0): 9.{decimales}f} | {float(p1): 9.{decimales}f} | {float(p): 9.{decimales}f} | {float(error): 9.{decimales}f} |")
-
+        
+        x2 = x1 - fx1 * (x1 - x0) / (fx1 - fx0)
+        error = abs(x2 - x1)
+        
+        print(f"| {n:<3} | {float(x2): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+        
         if error < tol:
-            print(f"\n[✓] Secante: Convergencia en iteración {n}: p = {float(p):.{decimales}f}")
-            return float(p)
+            print(f"\n[✓] Secante: Convergencia en iteración {n}: x = {float(x2):.{decimales}f}")
+            return float(x2)
+            
+        x0, x1 = x1, x2
+    return float(x1)
 
-        p0, q0 = p1, q1
-        p1, q1 = p, f(p)
+# ==========================================================================================
 
-    print("Excepción: Límite de iteraciones alcanzado.")
-    return float(p)
+def posicion_falsa(f, a, b, tolerancia, max_iter, decimales=6):
+    a, b = mp.mpf(a), mp.mpf(b)
+    tol = mp.mpf(tolerancia)
+    
+    print(f"\n| {'n':<3} | {'Xn':<12} | {'Error':<12} |")
+    print("-" * 35)
+    
+    x_old = a
+    for n in range(1, max_iter + 1):
+        fa = f(a)
+        fb = f(b)
+        if fb - fa == 0:
+            return float('nan')
+            
+        x = b - fb * (b - a) / (fb - fa)
+        error = abs(x - x_old)
+        
+        print(f"| {n:<3} | {float(x): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+        
+        if error < tol or abs(f(x)) < tol:
+            print(f"\n[✓] Posición Falsa: Convergencia en iteración {n}: x = {float(x):.{decimales}f}")
+            return float(x)
+            
+        if fa * f(x) < 0:
+            b = x
+        else:
+            a = x
+        x_old = x
+    return float(x)
 
 # ==========================================================================================
 
@@ -191,5 +217,105 @@ def posicion_falsa_modificada(f, p0, p1, tolerancia, max_iter, decimales=6):
         else:
             q0 = q0 / 2  # Algoritmo de Illinois
             p1, q1 = p, q
+
+    return float(p)
+
+# ==========================================================================================
+
+def muller(f, x0, x1, x2, tolerancia, max_iter, decimales=6):
+    x0, x1, x2 = mp.mpf(x0), mp.mpf(x1), mp.mpf(x2)
+    tol = mp.mpf(tolerancia)
+    
+    print(f"\n| {'n':<3} | {'Xn':<12} | {'Error':<12} |")
+    print("-" * 35)
+    
+    for n in range(3, max_iter + 1):
+        h1 = x1 - x0
+        h2 = x2 - x1
+        
+        # Protección si los puntos colisionan (raíz encontrada o estancamiento)
+        if h1 == 0 or h2 == 0 or (h2 + h1) == 0:
+            return float(mp.re(x2))
+            
+        d1 = (f(x1) - f(x0)) / h1
+        d2 = (f(x2) - f(x1)) / h2
+        d = (d2 - d1) / (h2 + h1)
+        
+        b = d2 + h2 * d
+        D = mp.sqrt(b**2 - 4 * f(x2) * d)
+        
+        # Maximizar el denominador
+        E = b + D if abs(b + D) > abs(b - D) else b - D
+            
+        if E == 0:
+            return float(mp.re(x2))
+            
+        h = -2 * f(x2) / E
+        x3 = x2 + h
+        error = abs(x3 - x2)
+        
+        print(f"| {n:<3} | {float(mp.re(x3)): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+        
+        if error < tol:
+            print(f"\n[✓] Müller: Convergencia en iteración {n}: x = {float(mp.re(x3)):.{decimales}f}")
+            return float(mp.re(x3))
+            
+        x0, x1, x2 = x1, x2, x3
+        
+    return float(mp.re(x2))
+
+# ==========================================================================================
+
+def secante(f, x0, x1, tolerancia, max_iter, decimales=6):
+    x0, x1 = mp.mpf(x0), mp.mpf(x1)
+    tol = mp.mpf(tolerancia)
+    
+    print(f"\n| {'n':<3} | {'Xn':<12} | {'Error':<12} |")
+    print("-" * 35)
+    
+    for n in range(1, max_iter + 1):
+        fx0 = f(x0)
+        fx1 = f(x1)
+        if fx1 - fx0 == 0:
+            return float('nan')
+        
+        x2 = x1 - fx1 * (x1 - x0) / (fx1 - fx0)
+        error = abs(x2 - x1)
+        
+        print(f"| {n:<3} | {float(x2): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+        
+        if error < tol:
+            return float(x2)
+            
+        x0, x1 = x1, x2
+    return float(x1)
+
+# ==========================================================================================
+
+def steffensen(g, p0, tolerancia, max_iter, decimales=6):
+    p0 = mp.mpf(p0)
+    tol = mp.mpf(tolerancia)
+
+    print(f"\n| {'n':<3} | {'p0':<12} | {'p1':<12} | {'p2':<12} | {'p':<12} | {'Error':<12} |")
+    print("-" * 80)
+
+    for n in range(1, max_iter + 1):
+        p1 = g(p0)
+        p2 = g(p1)
+        
+        denominador = p2 - 2*p1 + p0
+        if denominador == 0:
+            return float('nan')
+            
+        p = p0 - ((p1 - p0)**2) / denominador
+        error = abs(p - p0)
+
+        print(f"| {n:<3} | {float(p0): 10.{decimales}f} | {float(p1): 10.{decimales}f} | {float(p2): 10.{decimales}f} | {float(p): 10.{decimales}f} | {float(error): 10.{decimales}f} |")
+
+        if error < tol:
+            print(f"\n[✓] Steffensen: Convergencia en iteración {n}: p = {float(p):.{decimales}f}")
+            return float(p)
+
+        p0 = p
 
     return float(p)
