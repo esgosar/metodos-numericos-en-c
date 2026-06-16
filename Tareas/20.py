@@ -9,44 +9,46 @@ mp.dps = 50
 DEC = 6
 
 def f(x):
-    return mp.exp(2*x) * mp.cos(3*x)
+    return mp.exp(x)
 
 if __name__ == "__main__":
     print("===================================================================")
-    print("   UNIDAD 3.1 - EJERCICIO 13a (Cota de Error en un Intervalo)")
+    print("   UNIDAD 3.1 - EJERCICIOS 15b y 15c (f(x) = e^x)")
     print("===================================================================\n")
 
-    nodos = [mp.mpf('0.0'), mp.mpf('0.3'), mp.mpf('0.6')]
-    y_nodos = [f(x) for x in nodos]
+    # ---------------------------------------------------------
+    # EJERCICIO 15b: Interpolación Lineal (n=1)
+    # ---------------------------------------------------------
+    print("--- [EJERCICIO 15b] Interpolación Lineal (x0 = 0.5, x1 = 1) ---")
+    nodos_b = [mp.mpf('0.5'), mp.mpf('1.0')]
+    y_nodos_b = [f(x) for x in nodos_b]
     
-    print("--- 1. CONSTRUCCIÓN DEL POLINOMIO ---")
-    # Para construirlo solo le damos un punto falso cualquiera para que lo imprima
-    lagrange(nodos, y_nodos, mp.mpf(0), mostrar_polinomio=True, decimales=DEC)
-
-    print("--- 2. COTA DE ERROR ABSOLUTO EN [0.0, 0.6] ---")
-    pasos = 10000
-    a, b = mp.mpf('0.0'), mp.mpf('0.6')
+    x_eval_b = mp.mpf('0.75')
+    p1_eval = lagrange(nodos_b, y_nodos_b, x_eval_b, mostrar_polinomio=True, decimales=DEC)
     
-    max_derivada = mp.mpf(0)
-    max_productoria = mp.mpf(0)
+    print(f"Aproximación P1(0.75) = {float(p1_eval):.{DEC}f}")
+    print(f"Valor Real f(0.75)    = {float(f(x_eval_b)):.{DEC}f}")
+    print(f"Error Real            = {float(abs(p1_eval - f(x_eval_b))):.{DEC}f}\n")
+
+    # ---------------------------------------------------------
+    # EJERCICIO 15c: Interpolación Cuadrática (n=2)
+    # ---------------------------------------------------------
+    print("--- [EJERCICIO 15c] Interpolación Cuadrática (x0=0, x1=1, x2=2) ---")
+    nodos_c = [mp.mpf('0.0'), mp.mpf('1.0'), mp.mpf('2.0')]
+    y_nodos_c = [f(x) for x in nodos_c]
     
-    # Escaneo del intervalo para maximizar el teorema de error
-    for i in range(pasos + 1):
-        x_act = a + (b - a) * mp.mpf(i) / mp.mpf(pasos)
-        
-        # 1. Maximizar |f'''(x)|
-        val_deriv = abs(mp.diff(f, x_act, 3))
-        if val_deriv > max_derivada:
-            max_derivada = val_deriv
-            
-        # 2. Maximizar |(x-0.0)(x-0.3)(x-0.6)|
-        prod = abs((x_act - nodos[0]) * (x_act - nodos[1]) * (x_act - nodos[2]))
-        if prod > max_productoria:
-            max_productoria = prod
+    # Evaluación en x = 0.25
+    x_eval_c1 = mp.mpf('0.25')
+    print("\n>> Aproximando f(0.25):")
+    p2_eval_c1 = lagrange(nodos_c, y_nodos_c, x_eval_c1, mostrar_polinomio=True, decimales=DEC)
+    print(f"Aproximación P2(0.25) = {float(p2_eval_c1):.{DEC}f}")
+    print(f"Valor Real f(0.25)    = {float(f(x_eval_c1)):.{DEC}f}")
+    print(f"Error Real            = {float(abs(p2_eval_c1 - f(x_eval_c1))):.{DEC}f}\n")
 
-    # Cálculo final: ( M / 3! ) * Max_Prod
-    cota_maxima = (max_derivada / mp.factorial(3)) * max_productoria
-
-    print(f"Máximo absoluto de f'''(x) en el intervalo = {float(max_derivada):.{DEC}f}")
-    print(f"Máximo de la productoria en el intervalo = {float(max_productoria):.{DEC}f}")
-    print(f"Cota de Error Absoluto Máxima en [0.0, 0.6] = {float(cota_maxima):.{DEC}f}")
+    # Evaluación en x = 0.75
+    x_eval_c2 = mp.mpf('0.75')
+    print(">> Aproximando f(0.75):")
+    p2_eval_c2 = lagrange(nodos_c, y_nodos_c, x_eval_c2, mostrar_polinomio=False, decimales=DEC)
+    print(f"Aproximación P2(0.75) = {float(p2_eval_c2):.{DEC}f}")
+    print(f"Valor Real f(0.75)    = {float(f(x_eval_c2)):.{DEC}f}")
+    print(f"Error Real            = {float(abs(p2_eval_c2 - f(x_eval_c2))):.{DEC}f}\n")

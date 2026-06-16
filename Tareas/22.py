@@ -3,62 +3,47 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from mpmath import mp
-from metodos.interpolacion import neville  # <-- ¡Reutilizando nuestro método externo!
+from metodos.interpolacion import neville  # <-- ¡Importamos para validar!
 
 mp.dps = 50
-DEC = 6
-
-def imprimir_tabla_neville(nodos, Q):
-    n = len(nodos)
-    headers = f"{'x_i':<8} | " + " | ".join([f"Grado {j:<4}" for j in range(n)])
-    print(headers)
-    print("-" * len(headers))
-    for i in range(n):
-        fila_str = f"{float(nodos[i]):<8.4f} | "
-        valores_fila = []
-        for j in range(i + 1):
-            valores_fila.append(f"{float(Q[i][j]):.{DEC}f}")
-        for j in range(i + 1, n):
-            valores_fila.append(f"{'-':<{DEC+2}}")
-        fila_str += " | ".join(valores_fila)
-        print(fila_str)
-    print("-" * len(headers))
+DEC = 4
 
 if __name__ == "__main__":
-    # -----------------------------------------------------------------
-    # EJERCICIO 1b
-    # -----------------------------------------------------------------
     print("===================================================================")
-    print("   UNIDAD 3.2 - EJERCICIO 1b (Neville reutilizado en x = -1/3)")
+    print("   UNIDAD 3.2 - EJERCICIO 5 (Deducción Inversa e Interpolación)")
     print("===================================================================\n")
 
-    x_eval_b = mp.mpf('-1') / mp.mpf('3')
-    nodos_b = [mp.mpf('-0.75'), mp.mpf('-0.5'), mp.mpf('-0.25'), mp.mpf('0.0')]
-    y_b = [mp.mpf('-0.07181250'), mp.mpf('-0.02475000'), mp.mpf('0.33493750'), mp.mpf('1.10100000')]
-
-    # Llamada al método externo
-    Q_b = neville(nodos_b, y_b, x_eval_b)
-    imprimir_tabla_neville(nodos_b, Q_b)
+    x_eval = mp.mpf('0.4')
+    x0, x1, x2, x3 = mp.mpf('0.0'), mp.mpf('0.25'), mp.mpf('0.5'), mp.mpf('0.75')
     
-    print(f"\nAproximación Grado 1: {float(Q_b[3][1]):.{DEC}f}")
-    print(f"Aproximación Grado 2: {float(Q_b[3][2]):.{DEC}f}")
-    print(f"Aproximación Grado 3: {float(Q_b[3][3]):.{DEC}f}\n\n")
+    P0, P1, P3 = mp.mpf('1'), mp.mpf('2'), mp.mpf('8')
+    P01, P23, P123, P0123 = mp.mpf('2.6'), mp.mpf('2.4'), mp.mpf('2.96'), mp.mpf('3.016')
 
-    # -----------------------------------------------------------------
-    # EJERCICIO 1d
-    # -----------------------------------------------------------------
+    # Despeje analítico inverso
+    P012 = ((x_eval - x0) * P123 - P0123 * (x3 - x0)) / (x_eval - x3)
+    P12 = (P012 * (x2 - x0) + (x_eval - x2) * P01) / (x_eval - x0)
+    P2 = ((x_eval - x2) * P3 - P23 * (x3 - x2)) / (x_eval - x3)
+
+    print(f">> VALOR DEDUCIDO: P_2 = f(0.5) = {float(P2):.{DEC}f}\n")
+
     print("===================================================================")
-    print("   UNIDAD 3.2 - EJERCICIO 1d (Neville reutilizado en x = 0.9)")
-    print("===================================================================\n")
-
-    x_eval_d = mp.mpf('0.9')
-    nodos_d = [mp.mpf('0.6'), mp.mpf('0.7'), mp.mpf('0.8'), mp.mpf('1.0')]
-    y_d = [mp.mpf('-0.17694460'), mp.mpf('-0.01375227'), mp.mpf('0.22363362'), mp.mpf('0.65809197')]
-
-    # Llamada al método externo
-    Q_d = neville(nodos_d, y_d, x_eval_d)
-    imprimir_tabla_neville(nodos_d, Q_d)
+    print("   VALIDACIÓN: Regenerando la tabla completa con el método externo")
+    print("===================================================================")
     
-    print(f"\nAproximación Grado 1: {float(Q_d[3][1]):.{DEC}f}")
-    print(f"Aproximación Grado 2: {float(Q_d[3][2]):.{DEC}f}")
-    print(f"Aproximación Grado 3: {float(Q_d[3][3]):.{DEC}f}")
+    # Montamos los vectores completos usando el P2 obtenido
+    nodos_completos = [x0, x1, x2, x3]
+    y_completos = [P0, P1, P2, P3]
+    
+    # Ejecutamos el Neville reutilizable
+    Matriz_Validacion = neville(nodos_completos, y_completos, x_eval)
+    
+    # Imprimir la tabla resultante para verificar visualmente contra la imagen
+    headers = f"{'x_i':<6} | {'Grado 0':<8} | {'Grado 1':<8} | {'Grado 2':<8} | {'Grado 3':<8}"
+    print(headers)
+    print("-" * len(headers))
+    for i in range(4):
+        fila_str = f"{float(nodos_completos[i]):<6.2f} | "
+        valores = [f"{float(Matriz_Validacion[i][j]):.<8.4f}" if j <= i else f"{'-':<8}" for j in range(4)]
+        fila_str += " | ".join(valores)
+        print(fila_str)
+    print("-" * len(headers))

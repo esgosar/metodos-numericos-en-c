@@ -3,52 +3,62 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from mpmath import mp
-from metodos.interpolacion import lagrange
+from metodos.interpolacion import neville  # <-- ¡Reutilizando nuestro método externo!
 
 mp.dps = 50
 DEC = 6
 
-def f(x):
-    return mp.exp(x)
+def imprimir_tabla_neville(nodos, Q):
+    n = len(nodos)
+    headers = f"{'x_i':<8} | " + " | ".join([f"Grado {j:<4}" for j in range(n)])
+    print(headers)
+    print("-" * len(headers))
+    for i in range(n):
+        fila_str = f"{float(nodos[i]):<8.4f} | "
+        valores_fila = []
+        for j in range(i + 1):
+            valores_fila.append(f"{float(Q[i][j]):.{DEC}f}")
+        for j in range(i + 1, n):
+            valores_fila.append(f"{'-':<{DEC+2}}")
+        fila_str += " | ".join(valores_fila)
+        print(fila_str)
+    print("-" * len(headers))
 
 if __name__ == "__main__":
+    # -----------------------------------------------------------------
+    # EJERCICIO 1b
+    # -----------------------------------------------------------------
     print("===================================================================")
-    print("   UNIDAD 3.1 - EJERCICIOS 15b y 15c (f(x) = e^x)")
+    print("   UNIDAD 3.2 - EJERCICIO 1b (Neville reutilizado en x = -1/3)")
     print("===================================================================\n")
 
-    # ---------------------------------------------------------
-    # EJERCICIO 15b: Interpolación Lineal (n=1)
-    # ---------------------------------------------------------
-    print("--- [EJERCICIO 15b] Interpolación Lineal (x0 = 0.5, x1 = 1) ---")
-    nodos_b = [mp.mpf('0.5'), mp.mpf('1.0')]
-    y_nodos_b = [f(x) for x in nodos_b]
-    
-    x_eval_b = mp.mpf('0.75')
-    p1_eval = lagrange(nodos_b, y_nodos_b, x_eval_b, mostrar_polinomio=True, decimales=DEC)
-    
-    print(f"Aproximación P1(0.75) = {float(p1_eval):.{DEC}f}")
-    print(f"Valor Real f(0.75)    = {float(f(x_eval_b)):.{DEC}f}")
-    print(f"Error Real            = {float(abs(p1_eval - f(x_eval_b))):.{DEC}f}\n")
+    x_eval_b = mp.mpf('-1') / mp.mpf('3')
+    nodos_b = [mp.mpf('-0.75'), mp.mpf('-0.5'), mp.mpf('-0.25'), mp.mpf('0.0')]
+    y_b = [mp.mpf('-0.07181250'), mp.mpf('-0.02475000'), mp.mpf('0.33493750'), mp.mpf('1.10100000')]
 
-    # ---------------------------------------------------------
-    # EJERCICIO 15c: Interpolación Cuadrática (n=2)
-    # ---------------------------------------------------------
-    print("--- [EJERCICIO 15c] Interpolación Cuadrática (x0=0, x1=1, x2=2) ---")
-    nodos_c = [mp.mpf('0.0'), mp.mpf('1.0'), mp.mpf('2.0')]
-    y_nodos_c = [f(x) for x in nodos_c]
+    # Llamada al método externo
+    Q_b = neville(nodos_b, y_b, x_eval_b)
+    imprimir_tabla_neville(nodos_b, Q_b)
     
-    # Evaluación en x = 0.25
-    x_eval_c1 = mp.mpf('0.25')
-    print("\n>> Aproximando f(0.25):")
-    p2_eval_c1 = lagrange(nodos_c, y_nodos_c, x_eval_c1, mostrar_polinomio=True, decimales=DEC)
-    print(f"Aproximación P2(0.25) = {float(p2_eval_c1):.{DEC}f}")
-    print(f"Valor Real f(0.25)    = {float(f(x_eval_c1)):.{DEC}f}")
-    print(f"Error Real            = {float(abs(p2_eval_c1 - f(x_eval_c1))):.{DEC}f}\n")
+    print(f"\nAproximación Grado 1: {float(Q_b[3][1]):.{DEC}f}")
+    print(f"Aproximación Grado 2: {float(Q_b[3][2]):.{DEC}f}")
+    print(f"Aproximación Grado 3: {float(Q_b[3][3]):.{DEC}f}\n\n")
 
-    # Evaluación en x = 0.75
-    x_eval_c2 = mp.mpf('0.75')
-    print(">> Aproximando f(0.75):")
-    p2_eval_c2 = lagrange(nodos_c, y_nodos_c, x_eval_c2, mostrar_polinomio=False, decimales=DEC)
-    print(f"Aproximación P2(0.75) = {float(p2_eval_c2):.{DEC}f}")
-    print(f"Valor Real f(0.75)    = {float(f(x_eval_c2)):.{DEC}f}")
-    print(f"Error Real            = {float(abs(p2_eval_c2 - f(x_eval_c2))):.{DEC}f}\n")
+    # -----------------------------------------------------------------
+    # EJERCICIO 1d
+    # -----------------------------------------------------------------
+    print("===================================================================")
+    print("   UNIDAD 3.2 - EJERCICIO 1d (Neville reutilizado en x = 0.9)")
+    print("===================================================================\n")
+
+    x_eval_d = mp.mpf('0.9')
+    nodos_d = [mp.mpf('0.6'), mp.mpf('0.7'), mp.mpf('0.8'), mp.mpf('1.0')]
+    y_d = [mp.mpf('-0.17694460'), mp.mpf('-0.01375227'), mp.mpf('0.22363362'), mp.mpf('0.65809197')]
+
+    # Llamada al método externo
+    Q_d = neville(nodos_d, y_d, x_eval_d)
+    imprimir_tabla_neville(nodos_d, Q_d)
+    
+    print(f"\nAproximación Grado 1: {float(Q_d[3][1]):.{DEC}f}")
+    print(f"Aproximación Grado 2: {float(Q_d[3][2]):.{DEC}f}")
+    print(f"Aproximación Grado 3: {float(Q_d[3][3]):.{DEC}f}")
