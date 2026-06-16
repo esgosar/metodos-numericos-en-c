@@ -1,38 +1,39 @@
-# Calculadora de Métodos Numéricos en Python 🧮
+# Numerical Analysis Calculator in Python 🧮
 
-Este repositorio contiene un entorno de desarrollo robusto para el cálculo y análisis de Métodos Numéricos. Está diseñado con una arquitectura modular que separa la lógica de los algoritmos matemáticos de los scripts de resolución de tareas específicas.
+This repository contains a robust development environment for computing and analyzing Numerical Methods. It is designed with a modular architecture that separates the core logic of mathematical algorithms from the executable scripts for specific assignments.
 
-Todo el núcleo matemático está impulsado por la librería `mpmath`, garantizando cálculos de altísima precisión (hasta 50 decimales por defecto) y soporte nativo para números complejos.
+The entire mathematical core is powered by the `mpmath` library, ensuring high-precision calculations (up to 50 decimal places by default) and native support for complex numbers.
 
-## ✨ Características Principales
+## ✨ Key Features
 
-* **Búsqueda de Raíces:**
-  * Método de la Secante.
-  * Método de Müller (con soporte automático para navegación en el plano complejo y hallazgo de raíces imaginarias conjugadas).
-* **Interpolación Polinomial:**
-  * Construcción de Polinomios de Lagrange (con despliegue algebraico de la ecuación en consola).
-  * Método de Neville con generación automática de la matriz triangular iterativa.
-* **Análisis de Error Estricto:**
-  * Cálculo automático de Cotas de Error Teóricas usando el Teorema del Error de Lagrange.
-  * Diferenciación automática de funciones complejas (enésimas derivadas) y escaneo de intervalos para maximizar la productoria y encontrar el peor caso garantizado.
-* **Formatos y Reportes:**
-  * Salida por terminal estructurada en tablas dinámicas.
-  * Alineación de decimales y notaciones para facilitar la comparación de resultados.
+* **Root-Finding:**
+  * Secant Method.
+  * Müller's Method (with automatic support for complex plane navigation and finding complex conjugate roots).
+* **Polynomial Interpolation:**
+  * Lagrange Polynomial construction (with algebraic expression of the equation printed in the console).
+  * Neville's Method with automatic generation of the iterative triangular matrix.
+* **Strict Error Analysis:**
+  * Automatic calculation of Theoretical Error Bounds using Lagrange's Error Theorem.
+  * Automatic differentiation of complex functions (nth derivatives) and interval scanning to maximize the product and find the guaranteed worst-case scenario.
+* **Formatting and Reporting:**
+  * Terminal output structured into dynamic tables.
+  * Decimal alignment and clear notations to facilitate result comparison.
 
-## 📂 Estructura del Proyecto
+## 📂 Project Structure
 
-El proyecto sigue una estricta filosofía de "No repetición de código" (DRY), dividido en dos áreas principales:
+The project follows a strict "Don't Repeat Yourself" (DRY) philosophy, divided into two main areas:
 
 ```text
 .
-├── metodos/                  # 🧠 Núcleo de algoritmos genéricos
-│   ├── interpolacion.py      # Lógica de Lagrange, Neville y Cotas de error
-│   └── solvers.py            # Buscadores de raíces (Secante, Müller, etc.)
+├── metodos/                  # 🧠 Core generic algorithms
+│   ├── interpolacion.py      # Lagrange, Neville, and Error Bound logic
+│   └── solvers.py            # Root-finders (Secant, Müller, etc.)
 │
-├── Tareas/                   # 📝 Scripts ejecutables por ejercicio/unidad
+├── Tareas/                   # 📝 Executable scripts per exercise/unit
 │   ├── 01.py      
 │   ├── 02.py      
 │   ├── 03.py     
 │   └── ...                   
 │
-└── README.md                 # Documentación del proyecto
+└── README.md                 # Project documentation
+```
